@@ -34,6 +34,10 @@ if presents, it is supposed to be a white list of apps for jenkins run.
 Tests, reports and coverage are generated only for the apps from this list.
 You should specify --all option to ignore this settings.
 
+### `EXCLUDED_TESTS`
+list of excluded tests
+
+
 ### `JENKINS_TASKS`
 
 List of jenkins tasks executed by ./manage.py jenkins command.
