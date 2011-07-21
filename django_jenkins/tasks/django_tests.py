@@ -13,9 +13,12 @@ from django_jenkins.tasks import BaseTask
 class Task(BaseTask):
     def __init__(self, test_labels, options):
         super(Task, self).__init__(test_labels, options)
-        if not self.test_labels:
-            if hasattr(settings, 'PROJECT_APPS') and not options['test_all']:
-                self.test_labels = [app_name.split('.')[-1] for app_name in settings.PROJECT_APPS]
+        self.test_labels = settings.INSTALLED_APPS
+        if not options['test_all']:
+            if hasattr(settings, 'PROJECT_APPS'):
+                self.test_labels = settings.PROJECT_APPS
+            excludes = getattr(settings, 'TEST_EXCLUDES', [])
+        self.test_labels = [ app.split('.')[-1] for app in self.test_labels if app not in excludes ]
 
     def build_suite(self, suite, **kwargs):
         if self.test_labels:

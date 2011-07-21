@@ -44,7 +44,11 @@ def get_apps_under_test(test_labels, all_apps=False):
         apps = [app for app in settings.INSTALLED_APPS \
                     for label in test_labels \
                     if app == label.split('.')[0] or app.endswith('.%s' % label.split('.')[0])]
-    return apps
+    if not all_apps:
+        excludes = getattr(settings, 'TEST_EXCLUDES', [])
+        return [ app for app in apps if app not in excludes ]
+    else:
+        return apps
 
 
 def get_apps_locations(test_labels, all_apps=False):
