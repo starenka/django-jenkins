@@ -14,6 +14,7 @@ class Task(BaseTask):
     def __init__(self, test_labels, options):
         super(Task, self).__init__(test_labels, options)
         self.test_labels = settings.INSTALLED_APPS
+        excludes = []
         if not options['test_all']:
             if hasattr(settings, 'PROJECT_APPS'):
                 self.test_labels = settings.PROJECT_APPS
