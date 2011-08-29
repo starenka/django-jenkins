@@ -196,7 +196,7 @@ class _XMLTestResult(_TextTestResult):
             testcase.appendChild(failure)
 
             failure.setAttribute('type', test_result.err[0].__name__)
-            failure.setAttribute('message', str(test_result.err[1]))
+            failure.setAttribute('message', unicode(test_result.err[1]))
 
             error_info = test_result.get_error_info()
             _XMLTestResult._add_cdata(xml_document, error_info, failure)
@@ -258,7 +258,7 @@ class _XMLTestResult(_TextTestResult):
 
             report_file = file('%s%sTEST-%s.xml' % (test_runner.output_dir, os.sep, suite), 'w')
             try:
-                report_file.write(xml_content)
+                report_file.write(xml_content.encode('utf8'))
             finally:
                 report_file.close()
 
