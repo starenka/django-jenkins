@@ -6,6 +6,7 @@ import os
 import sys
 import time
 import unittest
+import unicodedata
 from cStringIO import StringIO
 from unittest import _TextTestResult, TestResult
 from xml.dom.minidom import Document
@@ -40,6 +41,10 @@ class _TestInfo(object):
         "Return a text representation of the test method."
         return self.test_result.getDescription(self.test_method)
 
+
+    def strip_accents(self,s):
+        return ''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))
+
     def get_error_info(self):
         """Return a text representation of an exception thrown by a test
         method.
@@ -47,8 +52,13 @@ class _TestInfo(object):
         if not self.err:
             return ''
 
-        return self.test_result._exc_info_to_string(self.err, \
-            self.test_method)
+        '''
+            We need to strip unicode chars, which could appear
+        f.e in traceback and transliterate them to ASCII in order
+        to dodge clasic ascii codec decode blahblahs.
+        '''
+        as_str = self.strip_accents(self.test_result._exc_info_to_string(self.err,self.test_method).decode('utf8'))
+        return as_str
 
 
 class _XMLTestResult(_TextTestResult):
@@ -129,7 +139,8 @@ class _XMLTestResult(_TextTestResult):
                 (flavour, test_info.get_elapsed_time(), \
                 test_info.get_description()))
             self.stream.writeln(self.separator2)
-            self.stream.writeln('%s' % test_info.get_error_info())
+
+            self.stream.writeln(test_info.get_error_info())
 
     def _get_info_by_testcase(self):
         """This method organizes test results by TestCase module. This
@@ -255,7 +266,9 @@ class _XMLTestResult(_TextTestResult):
             for test in tests:
                 _XMLTestResult._report_testcase(suite, test, testsuite, doc)
             _XMLTestResult._report_output(test_runner, testsuite, doc)
+
             xml_content = doc.toprettyxml(indent='\t')
+
 
             report_file = file('%s%sTEST-%s.xml' % (test_runner.output_dir, os.sep, suite), 'w')
             try:
