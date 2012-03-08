@@ -42,8 +42,8 @@ class _TestInfo(object):
         return self.test_result.getDescription(self.test_method)
 
 
-    def strip_accents(self,s):
-        return ''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))
+    def strip_accents(self, s):
+        return u''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))
 
     def get_error_info(self):
         """Return a text representation of an exception thrown by a test
@@ -55,9 +55,9 @@ class _TestInfo(object):
         '''
             We need to strip unicode chars, which could appear
         f.e in traceback and transliterate them to ASCII in order
-        to dodge clasic ascii codec decode blahblahs.
+        to dodge classic ascii codec decode blahblahs.
         '''
-        as_str = self.strip_accents(self.test_result._exc_info_to_string(self.err,self.test_method).decode('utf8'))
+        as_str = self.strip_accents(self.test_result._exc_info_to_string(self.err, self.test_method).decode('utf8'))
         return as_str
 
 
@@ -67,7 +67,8 @@ class _XMLTestResult(_TextTestResult):
 
     Used by XMLTestRunner.
     """
-    def __init__(self, stream=sys.stderr, descriptions=1, verbosity=1, \
+
+    def __init__(self, stream=sys.stderr, descriptions=1, verbosity=1,\
                  elapsed_times=True):
         "Create a new instance of _XMLTestResult."
         _TextTestResult.__init__(self, stream, descriptions, verbosity)
@@ -75,7 +76,7 @@ class _XMLTestResult(_TextTestResult):
         self.callback = None
         self.elapsed_times = elapsed_times
 
-    def _prepare_callback(self, test_info, target_list, verbose_str, \
+    def _prepare_callback(self, test_info, target_list, verbose_str,\
                           short_str):
         """Append a _TestInfo to the given target list and sets a callback
         method to be called by stopTest method.
@@ -92,10 +93,11 @@ class _XMLTestResult(_TextTestResult):
                 self.start_time = self.stop_time = 0
 
             if self.showAll:
-                self.stream.writeln('%s (%.3fs)' % \
-                    (verbose_str, test_info.get_elapsed_time()))
+                self.stream.writeln('%s (%.3fs)' %\
+                                    (verbose_str, test_info.get_elapsed_time()))
             elif self.dots:
                 self.stream.write(short_str)
+
         self.callback = callback
 
     def startTest(self, test):
@@ -118,26 +120,26 @@ class _XMLTestResult(_TextTestResult):
 
     def addSuccess(self, test):
         "Called when a test executes successfully."
-        self._prepare_callback(_TestInfo(self, test), \
+        self._prepare_callback(_TestInfo(self, test),\
             self.successes, 'OK', '.')
 
     def addFailure(self, test, err):
         "Called when a test method fails."
-        self._prepare_callback(_TestInfo(self, test, _TestInfo.FAILURE, err), \
+        self._prepare_callback(_TestInfo(self, test, _TestInfo.FAILURE, err),\
             self.failures, 'FAIL', 'F')
 
     def addError(self, test, err):
         "Called when a test method raises an error."
-        self._prepare_callback(_TestInfo(self, test, _TestInfo.ERROR, err), \
+        self._prepare_callback(_TestInfo(self, test, _TestInfo.ERROR, err),\
             self.errors, 'ERROR', 'E')
 
     def printErrorList(self, flavour, errors):
         "Write some information about the FAIL or ERROR to the stream."
         for test_info in errors:
             self.stream.writeln(self.separator1)
-            self.stream.writeln('%s [%.3fs]: %s' % \
-                (flavour, test_info.get_elapsed_time(), \
-                test_info.get_description()))
+            self.stream.writeln('%s [%.3fs]: %s' %\
+                                (flavour, test_info.get_elapsed_time(),\
+                                 test_info.get_description()))
             self.stream.writeln(self.separator2)
 
             self.stream.writeln(test_info.get_error_info())
@@ -173,8 +175,8 @@ class _XMLTestResult(_TextTestResult):
         testsuite.setAttribute('name', suite_name)
         testsuite.setAttribute('tests', str(len(tests)))
 
-        testsuite.setAttribute('time', '%.3f' % \
-            sum(map(lambda e: e.get_elapsed_time(), tests)))
+        testsuite.setAttribute('time', '%.3f' %\
+                                       sum(map(lambda e: e.get_elapsed_time(), tests)))
 
         failures = filter(lambda e: e.outcome == _TestInfo.FAILURE, tests)
         testsuite.setAttribute('failures', str(len(failures)))
@@ -269,7 +271,6 @@ class _XMLTestResult(_TextTestResult):
 
             xml_content = doc.toprettyxml(indent='\t')
 
-
             report_file = file('%s%sTEST-%s.xml' % (test_runner.output_dir, os.sep, suite), 'w')
             try:
                 report_file.write(xml_content.encode('utf8'))
@@ -281,6 +282,7 @@ class XMLTestRunner(DjangoTestRunner):
     """
     A test result class that can express test results in a XML report.
     """
+
     def __init__(self, output_dir, debug=False, with_reports=True, **kwargs):
         super(XMLTestRunner, self).__init__(**kwargs)
         self.with_reports = with_reports
@@ -319,6 +321,7 @@ class CITestSuiteRunner(DjangoTestSuiteRunner):
     """
     Continues integration test runner
     """
+
     def __init__(self, output_dir, debug=False, with_reports=True, **kwargs):
         super(CITestSuiteRunner, self).__init__(**kwargs)
         self.with_reports = with_reports
@@ -336,6 +339,7 @@ class CITestSuiteRunner(DjangoTestSuiteRunner):
     def setup_databases(self):
         if 'south' in settings.INSTALLED_APPS:
             from south.management.commands import patch_for_test_db_setup  # pylint: disable=F0401
+
             patch_for_test_db_setup()
         return super(CITestSuiteRunner, self).setup_databases()
 
